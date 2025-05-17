@@ -5,6 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Configura Serilog leggendo solo da appsettings.json, senza Enrich
+Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+
 builder.Host.UseSerilog();
 
 
