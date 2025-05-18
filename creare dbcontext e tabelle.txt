@@ -1,20 +1,6 @@
 Scaffold-DbContext "Server=DESKTOP-BEQ2HPD\SQLEXPRESS;Database=BookStoreDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data -Context BookStoreDbContext  -Force
 
 
-Dettaglio dei parametri
-Connection String
-"Server=DESKTOP-BEQ2HPD\SQLEXPRESS;Database=BookStoreDb;Trusted_Connection=True;MultipleActiveResultSets=True"
-Sostituisci i valori di Server e Database in base alla tua configurazione locale.
+// creo una migration vuota
+dotnet ef migrations add Baseline --context BookStoreDbContext  --output-dir Migrations
 
-Provider
-Microsoft.EntityFrameworkCore.SqlServer
-Il provider EF Core per SQL Server.
-
--OutputDir Data
-Specifica la cartella di destinazione (./Data) dove verranno create le classi delle entità e il DbContext.
-
--Context BookStoreDbContext
-Imposta il nome della classe DbContext generata.
-
--Force
-Sovrascrive eventuali file esistenti nella cartella di destinazione.
