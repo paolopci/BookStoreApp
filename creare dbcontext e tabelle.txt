@@ -1,0 +1,6 @@
+Scaffold-DbContext "Server=DESKTOP-BEQ2HPD\SQLEXPRESS;Database=BookStoreDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data -Context BookStoreDbContext  -Force
+
+
+// creo una migration vuota
+dotnet ef migrations add Baseline --context BookStoreDbContext  --output-dir Migrations
+

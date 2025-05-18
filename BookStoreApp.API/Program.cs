@@ -1,10 +1,15 @@
+using BookStoreApp.API.Data;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+var connString = builder.Configuration.GetConnectionString("BookStoreAppDbConnection");
+builder.Services.AddDbContext<BookStoreDbContext>(options =>
+    options.UseSqlServer(connString)
+);
 
 Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 
@@ -38,7 +43,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");// cors va  before both authentication and authorization.
+app.UseCors("AllowAll");// cors va  before both authentication and authorization. 
 app.UseAuthorization();
 
 app.MapControllers();
