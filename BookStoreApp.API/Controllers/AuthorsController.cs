@@ -1,4 +1,5 @@
-﻿using BookStoreApp.API.Data;
+﻿using AutoMapper;
+using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.Author;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace BookStoreApp.API.Controllers
     public class AuthorsController : ControllerBase
     {
         private readonly BookStoreDbContext _context;
+        private readonly IMapper _mapper;
 
-        public AuthorsController(BookStoreDbContext context)
+        public AuthorsController(BookStoreDbContext context, IMapper mapper)
         {
             _context = context;
+           _mapper = mapper;
         }
 
         // GET: api/Authors
@@ -73,12 +76,8 @@ namespace BookStoreApp.API.Controllers
         [HttpPost]
         public async Task<ActionResult<AuthorCreateDto>> PostAuthor(AuthorCreateDto authorDto)
         {
-            var author = new Author
-            {
-                FirstName = authorDto.FirstName,
-                LastName = authorDto.LastName,
-                Bio = authorDto.Bio
-            };
+           
+            var author = _mapper.Map<Author>(authorDto);
              
             await _context.Authors.AddAsync(author);
             await _context.SaveChangesAsync();
