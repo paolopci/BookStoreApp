@@ -19,7 +19,7 @@ namespace BookStoreApp.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
         {
-            return await _context.Authors.ToListAsync();
+            return Ok(await _context.Authors.ToListAsync());
         }
 
         // GET: api/Authors/5
@@ -33,7 +33,7 @@ namespace BookStoreApp.API.Controllers
                 return NotFound();
             }
 
-            return author;
+            return Ok(author);
         }
 
         // PUT: api/Authors/5
@@ -54,7 +54,7 @@ namespace BookStoreApp.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AuthorExists(id))
+                if (!await AuthorExists(id))
                 {
                     return NotFound();
                 }
@@ -72,10 +72,10 @@ namespace BookStoreApp.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Author>> PostAuthor(Author author)
         {
-            _context.Authors.Add(author);
+            await _context.Authors.AddAsync(author);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAuthor", new { id = author.Id }, author);
+            return CreatedAtAction(nameof(GetAuthor), new { id = author.Id }, author);
         }
 
         // DELETE: api/Authors/5
@@ -94,9 +94,9 @@ namespace BookStoreApp.API.Controllers
             return NoContent();
         }
 
-        private bool AuthorExists(int id)
+        private async Task<bool> AuthorExists(int id)
         {
-            return _context.Authors.Any(e => e.Id == id);
+            return await _context.Authors.AnyAsync(e => e.Id == id);
         }
     }
 }
