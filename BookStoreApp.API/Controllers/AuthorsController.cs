@@ -3,42 +3,69 @@ using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.Author;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
 
 namespace BookStoreApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorsController : ControllerBase
+    public class AuthorsController:ControllerBase
     {
         private readonly BookStoreDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ILogger<AuthorsController> _logger;
 
-        public AuthorsController(BookStoreDbContext context, IMapper mapper)
+        public AuthorsController(BookStoreDbContext context, IMapper mapper, ILogger<AuthorsController> logger)
         {
             _context = context;
-           _mapper = mapper;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         // GET: api/Authors
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuthorReadOnlyDto>>> GetAuthors()
         {
-            var authors = _mapper.Map<IEnumerable<AuthorReadOnlyDto>>(await _context.Authors.ToListAsync());
-            return Ok(authors);
+            _logger.LogInformation("[GetAuthors] Starting retrieval of all authors.");
+            try
+            {
+                var authors = _mapper.Map<List<AuthorReadOnlyDto>>(await _context.Authors.ToListAsync());
+                _logger.LogInformation("[GetAuthors] Retrieved {Count} authors.", authors.Count);
+                return Ok(authors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[GetAuthors] An error occurred while retrieving authors.");
+                return StatusCode(500, "An unexpected error occurred.");
+            }
+
         }
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
         public async Task<ActionResult<AuthorReadOnlyDto>> GetAuthor(int id)
         {
-            var author = _mapper.Map<AuthorReadOnlyDto>(await _context.Authors.FindAsync(id));  
-
-            if (author == null)
+            _logger.LogInformation($"{nameof(GetAuthor)} Retrieving author with id {id}.");
+            try
             {
-                return NotFound();
+                var author = _mapper.Map<AuthorReadOnlyDto>(await _context.Authors.FindAsync(id));
+
+                if (author == null)
+                {
+                    _logger.LogWarning("[GetAuthor] Author with id {AuthorId} not found.", id);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("[GetAuthor] Successfully retrieved author with id {AuthorId}.", id);
+                return Ok(author);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[GetAuthor] An error occurred while retrieving author with id {AuthorId}.", id);
+                return StatusCode(500, "An unexpected error occurred.");
             }
 
-            return Ok(author);
         }
 
         // PUT: api/Authors/5
@@ -46,37 +73,48 @@ namespace BookStoreApp.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAuthor(int id, AuthorUpdateDto authorDto)
         {
+            _logger.LogInformation("[PutAuthor] Updating author with id {AuthorId}.", id);
+
             if (id != authorDto.Id)
             {
-                return BadRequest();
+                _logger.LogWarning("[PutAuthor] Mismatch between route id {RouteId} and body id {BodyId}.", id,
+                    authorDto.Id);
+                return BadRequest("ID nel percorso diverso dall'ID nel body.");
             }
-
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
-            {
-                return NotFound();
-            }
-            //questa chiamata riempie o sovrascrive i valori dell’istanza author esistente,
-            //copiando i dati da authorDto.
-            _mapper.Map(authorDto, author);
 
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await AuthorExists(id))
+                var author = await _context.Authors.FindAsync(id);
+                if (author == null)
                 {
+                    _logger.LogWarning("[PutAuthor] Author with id {AuthorId} not found.", id);
                     return NotFound();
                 }
-                else
+
+                //questa chiamata riempie o sovrascrive i valori dell’istanza author esistente,
+                //copiando i dati da authorDto.
+                _mapper.Map(authorDto, author);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogError(ex, "[PutAuthor] Concurrency error while updating author with id {AuthorId}.", id);
+                if (!await AuthorExists(id))
                 {
-                    throw;
+                    _logger.LogWarning("[PutAuthor] Author with id {AuthorId} no longer exists.", id);
+                    return NotFound();
                 }
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[PutAuthor] An error occurred while updating author with id {AuthorId}.", id);
+                return StatusCode(500, "An unexpected error occurred.");
             }
 
-            return NoContent();
+
         }
 
         // POST: api/Authors
@@ -84,35 +122,61 @@ namespace BookStoreApp.API.Controllers
         [HttpPost]
         public async Task<ActionResult<AuthorCreateDto>> PostAuthor(AuthorCreateDto authorDto)
         {
-           // questa chiamata crea semplicemente una nuova istanza di Author
-           // popolata con i valori presenti in authorDto
-            var author = _mapper.Map<Author>(authorDto);
-             
-            await _context.Authors.AddAsync(author);
-            await _context.SaveChangesAsync();
+            _logger.LogInformation("[PostAuthor] Creating a new author.");
+            try
+            {
+                // questa chiamata crea semplicemente una nuova istanza di Author
+                // popolata con i valori presenti in authorDto
+                var author = _mapper.Map<Author>(authorDto);
 
-            return CreatedAtAction(nameof(GetAuthor), new { id = author.Id }, author);
+                await _context.Authors.AddAsync(author);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("[PostAuthor] Successfully created author with id {AuthorId}.", author.Id);
+                return CreatedAtAction(nameof(GetAuthor), new {id = author.Id}, author);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[PostAuthor] An error occurred while creating a new author.");
+                return StatusCode(500, "An unexpected error occurred.");
+            }
+
         }
 
         // DELETE: api/Authors/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
+            _logger.LogInformation("[DeleteAuthor] Deleting author with id {AuthorId}.", id);
+            try
             {
-                return NotFound();
+                var author = await _context.Authors.FindAsync(id);
+                if (author == null)
+                {
+                    _logger.LogWarning("[DeleteAuthor] Author with id {AuthorId} not found.", id);
+                    return NotFound();
+                }
+
+                _context.Authors.Remove(author);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("[DeleteAuthor] Successfully deleted author with id {AuthorId}.", id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DeleteAuthor] An error occurred while deleting author with id {AuthorId}.", id);
+                return StatusCode(500, "An unexpected error occurred.");
             }
 
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
+
+
 
         private async Task<bool> AuthorExists(int id)
         {
             return await _context.Authors.AnyAsync(e => e.Id == id);
         }
+
     }
 }
