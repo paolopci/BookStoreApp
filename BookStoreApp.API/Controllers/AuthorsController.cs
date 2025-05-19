@@ -21,16 +21,17 @@ namespace BookStoreApp.API.Controllers
 
         // GET: api/Authors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
+        public async Task<ActionResult<IEnumerable<AuthorReadOnlyDto>>> GetAuthors()
         {
-            return Ok(await _context.Authors.ToListAsync());
+            var authors = _mapper.Map<IEnumerable<AuthorReadOnlyDto>>(await _context.Authors.ToListAsync());
+            return Ok(authors);
         }
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Author>> GetAuthor(int id)
+        public async Task<ActionResult<AuthorReadOnlyDto>> GetAuthor(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
+            var author = _mapper.Map<AuthorReadOnlyDto>(await _context.Authors.FindAsync(id));  
 
             if (author == null)
             {
@@ -43,14 +44,21 @@ namespace BookStoreApp.API.Controllers
         // PUT: api/Authors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, Author author)
+        public async Task<IActionResult> PutAuthor(int id, AuthorUpdateDto authorDto)
         {
-            if (id != author.Id)
+            if (id != authorDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(author).State = EntityState.Modified;
+            var author = await _context.Authors.FindAsync(id);
+            if (author == null)
+            {
+                return NotFound();
+            }
+            //questa chiamata riempie o sovrascrive i valori dell’istanza author esistente,
+            //copiando i dati da authorDto.
+            _mapper.Map(authorDto, author);
 
             try
             {
@@ -76,7 +84,8 @@ namespace BookStoreApp.API.Controllers
         [HttpPost]
         public async Task<ActionResult<AuthorCreateDto>> PostAuthor(AuthorCreateDto authorDto)
         {
-           
+           // questa chiamata crea semplicemente una nuova istanza di Author
+           // popolata con i valori presenti in authorDto
             var author = _mapper.Map<Author>(authorDto);
              
             await _context.Authors.AddAsync(author);

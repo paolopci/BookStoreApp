@@ -10,8 +10,9 @@ namespace BookStoreApp.API.Configurations
         public MapperConfig()
         {
             // Example mappings - replace with your actual entities and DTOs
-            //  CreateMap<Book, BookDto>().ReverseMap();
             CreateMap<Author, AuthorCreateDto>().ReverseMap();
+            CreateMap<Author, AuthorReadOnlyDto>().ReverseMap();
+            CreateMap<Author, AuthorUpdateDto>().ReverseMap();
 
         }
     }
