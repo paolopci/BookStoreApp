@@ -1,5 +1,6 @@
 using BookStoreApp.API.Configurations;
 using BookStoreApp.API.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -12,6 +13,11 @@ builder.Services.AddDbContext<BookStoreDbContext>(options =>
     options.UseSqlServer(connString)
 );
 
+// Configure Identity
+builder.Services.AddIdentityCore<IdentityUser>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<BookStoreDbContext>();
+
 //add mapper configuration
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
@@ -21,22 +27,19 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 // add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",// da ogni dove nome che do alla mia policy
-        b => b.AllowAnyMethod() // ogni metodo Get,post,put,delete
-            .AllowAnyHeader()   // ogni header
-            .AllowAnyOrigin()); // ogni origine
+    options.AddPolicy("AllowAll",
+        b => b.AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowAnyOrigin());
 });
 
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -44,10 +47,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");// cors va  before both authentication and authorization. 
+app.UseCors("AllowAll");
+app.UseAuthentication(); // Add this line for Identity
 app.UseAuthorization();
 
 app.MapControllers();
