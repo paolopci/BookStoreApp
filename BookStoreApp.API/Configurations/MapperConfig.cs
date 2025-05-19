@@ -64,7 +64,7 @@ namespace BookStoreApp.API.Configurations
 
 
             CreateMap<Book, BookDetailsDto>().ForMember(dest => dest.AuthorName, opt => 
-                      opt.MapFrom(src => src.Author != null ? $"{src.Author.FirstName} {src.Author.LastName}" : string.Empty));
+                       opt.MapFrom(src => src.Author != null ? $"{src.Author.FirstName} {src.Author.LastName}" : string.Empty));
             CreateMap<BookDetailsDto, Book>();
         }
     }
