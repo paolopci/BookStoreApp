@@ -32,21 +32,27 @@ namespace BookStoreApp.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BookReadOnlyDto>>> GetBooks()
         {
-            var books = _mapper.Map<List<BookReadOnlyDto>>(await _context.Books.ToListAsync());
+            var books = _mapper.Map<List<BookReadOnlyDto>>(
+                                         await _context.Books.Include(auth => auth.Author)
+                                         .ToListAsync()
+                                         );
             return Ok(books); ;
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BookReadOnlyDto>> GetBook(int id)
+        public async Task<ActionResult<BookDetailsDto>> GetBook(int id)
         {
-            var book = _mapper.Map<BookReadOnlyDto>(await _context.Books.FindAsync(id));
+            var bookEntity = await _context.Books
+                .Include(auth => auth.Author)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
-            if (book == null)
+            if (bookEntity == null)
             {
                 return NotFound();
             }
 
+            var book = _mapper.Map<BookDetailsDto>(bookEntity);
             return Ok(book);
         }
 
@@ -60,7 +66,7 @@ namespace BookStoreApp.API.Controllers
                 return BadRequest();
             }
 
-           // _context.Entry(bookDto).State = EntityState.Modified;
+            // _context.Entry(bookDto).State = EntityState.Modified;
 
             try
             {
