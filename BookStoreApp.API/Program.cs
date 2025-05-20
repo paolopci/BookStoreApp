@@ -1,6 +1,10 @@
 using BookStoreApp.API.Configurations;
 using BookStoreApp.API.Data;
+using BookStoreApp.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 
@@ -12,6 +16,11 @@ builder.Services.AddDbContext<BookStoreDbContext>(options =>
     options.UseSqlServer(connString)
 );
 
+// Configure Identity
+builder.Services.AddIdentityCore<ApiUser>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<BookStoreDbContext>();
+
 //add mapper configuration
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
@@ -21,22 +30,45 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 // add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",// da ogni dove nome che do alla mia policy
-        b => b.AllowAnyMethod() // ogni metodo Get,post,put,delete
-            .AllowAnyHeader()   // ogni header
-            .AllowAnyOrigin()); // ogni origine
+    options.AddPolicy("AllowAll",
+        b => b.AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowAnyOrigin());
 });
 
-var app = builder.Build();
+// JWT authentication
 
+builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+                                     builder.Configuration["JwtSettings:Key"] ?? string.Empty)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+
+
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -44,10 +76,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");// cors va  before both authentication and authorization. 
+app.UseCors("AllowAll");
+
+
+app.UseAuthentication(); // Add this line for Identity
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.Author;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,8 @@ namespace BookStoreApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorsController:ControllerBase
+    [Authorize]
+    public class AuthorsController : ControllerBase
     {
         private readonly BookStoreDbContext _context;
         private readonly IMapper _mapper;
@@ -71,6 +73,7 @@ namespace BookStoreApp.API.Controllers
         // PUT: api/Authors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> PutAuthor(int id, AuthorUpdateDto authorDto)
         {
             _logger.LogInformation("[PutAuthor] Updating author with id {AuthorId}.", id);
@@ -120,6 +123,7 @@ namespace BookStoreApp.API.Controllers
         // POST: api/Authors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult<AuthorCreateDto>> PostAuthor(AuthorCreateDto authorDto)
         {
             _logger.LogInformation("[PostAuthor] Creating a new author.");
@@ -133,7 +137,7 @@ namespace BookStoreApp.API.Controllers
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("[PostAuthor] Successfully created author with id {AuthorId}.", author.Id);
-                return CreatedAtAction(nameof(GetAuthor), new {id = author.Id}, author);
+                return CreatedAtAction(nameof(GetAuthor), new { id = author.Id }, author);
             }
             catch (Exception ex)
             {
@@ -145,6 +149,7 @@ namespace BookStoreApp.API.Controllers
 
         // DELETE: api/Authors/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
             _logger.LogInformation("[DeleteAuthor] Deleting author with id {AuthorId}.", id);
@@ -170,8 +175,6 @@ namespace BookStoreApp.API.Controllers
             }
 
         }
-
-
 
         private async Task<bool> AuthorExists(int id)
         {
