@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.User;
+using BookStoreApp.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,15 +12,19 @@ namespace BookStoreApp.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly UserManager<ApiUser> _userManager;
+        private readonly TokenService _tokenService;
         private readonly ILogger<AuthController> _logger;
         private readonly IMapper _mapper;
-        private readonly UserManager<ApiUser> _userManager;
 
-        public AuthController(ILogger<AuthController> logger, IMapper mapper, UserManager<ApiUser> userManager)
+        public AuthController(UserManager<ApiUser> userManager, TokenService tokenService,
+                              ILogger<AuthController> logger, IMapper mapper)
         {
+            _userManager = userManager;
+            _tokenService = tokenService;
             _logger = logger;
             _mapper = mapper;
-            _userManager = userManager;
+
         }
 
         [HttpPost]
@@ -61,7 +66,7 @@ namespace BookStoreApp.API.Controllers
             _logger.LogInformation("Logging in user with email: {Email}", userDto.Email);
             try
             {
-               var user = await _userManager.FindByEmailAsync(userDto.Email);
+                var user = await _userManager.FindByEmailAsync(userDto.Email);
                 if (user == null)
                 {
                     return NotFound("User not found");
@@ -69,18 +74,23 @@ namespace BookStoreApp.API.Controllers
                 var passwordValid = await _userManager.CheckPasswordAsync(user, userDto.Password);
                 if (!passwordValid)
                 {
-                    return Unauthorized("Invalid password");
+                    return Unauthorized("Credenziali non valide");
                 }
-                return Ok("Login successful");
+
+                // 8. Generazione del token tramite TokenService
+                var tokenString = await _tokenService.GenerateTokenAsync(user);
+
+
+
+
+                return Ok(new { Token = tokenString });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while logging the user in the {nameof(Login)}");
-                return Problem($"An error occurred while Login the user in the {nameof(Login)}",
-                    statusCode: 500);
+                _logger.LogError(ex, "Errore durante il login dell'utente nel metodo {Method}", nameof(Login));
+                return Problem(detail: "Si è verificato un errore interno durante il login", statusCode: 500);
             }
         }
-
 
     }
 }
