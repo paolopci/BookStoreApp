@@ -14,7 +14,7 @@ builder.Services.AddDbContext<BookStoreDbContext>(options =>
 );
 
 // Configure Identity
-builder.Services.AddIdentityCore<IdentityUser>()
+builder.Services.AddIdentityCore<ApiUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<BookStoreDbContext>();
 
