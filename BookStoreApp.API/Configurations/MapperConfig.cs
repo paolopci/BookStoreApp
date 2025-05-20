@@ -64,12 +64,32 @@ namespace BookStoreApp.API.Configurations
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price ?? 0));
 
 
-            CreateMap<Book, BookDetailsDto>().ForMember(dest => dest.AuthorName, opt => 
+            CreateMap<Book, BookDetailsDto>().ForMember(dest => dest.AuthorName, opt =>
                        opt.MapFrom(src => src.Author != null ? $"{src.Author.FirstName} {src.Author.LastName}" : string.Empty));
             CreateMap<BookDetailsDto, Book>();
 
 
-            CreateMap<ApiUser, UserDto>().ReverseMap();
+            // CreateMap<ApiUser, UserDto>().ReverseMap();
+            // DTO -> Entity
+            CreateMap<UserDto, ApiUser>()
+                .ForMember(dest => dest.UserName,
+                           opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Email,
+                           opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.FirstName,
+                           opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.LastName,
+                           opt => opt.MapFrom(src => src.LastName));
+            // (eventualmente rimuovi o rimappa anche Role, se non esiste in ApiUser)
+
+            // Entity -> DTO
+            CreateMap<ApiUser, UserDto>()
+                .ForMember(dest => dest.Email,
+                           opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.FirstName,
+                           opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.LastName,
+                           opt => opt.MapFrom(src => src.LastName));
         }
     }
 }

@@ -58,7 +58,27 @@ namespace BookStoreApp.API.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(LoginUserDto userDto)
         {
-
+            _logger.LogInformation("Logging in user with email: {Email}", userDto.Email);
+            try
+            {
+               var user = await _userManager.FindByEmailAsync(userDto.Email);
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+                var passwordValid = await _userManager.CheckPasswordAsync(user, userDto.Password);
+                if (!passwordValid)
+                {
+                    return Unauthorized("Invalid password");
+                }
+                return Ok("Login successful");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while logging the user in the {nameof(Login)}");
+                return Problem($"An error occurred while Login the user in the {nameof(Login)}",
+                    statusCode: 500);
+            }
         }
 
 
