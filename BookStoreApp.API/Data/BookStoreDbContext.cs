@@ -81,7 +81,7 @@ public partial class BookStoreDbContext : IdentityDbContext<ApiUser>
         modelBuilder.Entity<ApiUser>().HasData(
             new ApiUser
             {
-                Id = "62676900-72A8-407E-8E9F-250E7AAC1113",
+                Id = "29EC137D-88AF-4437-A719-28B3A65F287D",
                 Email = "admin@bookstore.com",
                 NormalizedEmail = "ADMIN@BOOKSTORE.COM",
                 UserName = "admin@bookstore.com",
@@ -92,7 +92,7 @@ public partial class BookStoreDbContext : IdentityDbContext<ApiUser>
             },
             new ApiUser
             {
-                Id ="8B22FC70-F6E8-48CD-8506-22F1DE1BCD69",
+                Id = "8B22FC70-F6E8-48CD-8506-22F1DE1BCD69",
                 Email = "user@bookstore.com",
                 NormalizedEmail = "USER@BOOKSTORE.COM",
                 UserName = "user@bookstore.com",
@@ -100,6 +100,19 @@ public partial class BookStoreDbContext : IdentityDbContext<ApiUser>
                 FirstName = "User1",
                 LastName = "User2",
                 PasswordHash = hasher.HashPassword(null, "Micene@65"),
+            }
+        );
+
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+            new IdentityUserRole<string>
+            {
+                RoleId = "62676900-72A8-407E-8E9F-250E7AAC1113", // User
+                UserId = "8B22FC70-F6E8-48CD-8506-22F1DE1BCD69" // user@bookstore.com
+            },
+            new IdentityUserRole<string>
+            {
+                RoleId = "F7F8FE30-6BAC-43DB-AFEE-0546FE8F5124", // Administrator
+                UserId = "29EC137D-88AF-4437-A719-28B3A65F287D" // admin@bookstore.com
             }
         );
 
