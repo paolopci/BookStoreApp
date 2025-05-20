@@ -121,7 +121,7 @@ namespace BookStoreApp.API.Controllers
         {
             var book = await _context.Books.FindAsync(id);
             if (book == null)
-            {
+            { 
                 return NotFound();
             }
 
