@@ -75,6 +75,34 @@ public partial class BookStoreDbContext : IdentityDbContext<ApiUser>
             }
         );
 
+
+        var hasher = new PasswordHasher<ApiUser>();
+
+        modelBuilder.Entity<ApiUser>().HasData(
+            new ApiUser
+            {
+                Id = "62676900-72A8-407E-8E9F-250E7AAC1113",
+                Email = "admin@bookstore.com",
+                NormalizedEmail = "ADMIN@BOOKSTORE.COM",
+                UserName = "admin@bookstore.com",
+                NormalizedUserName = "ADMIN@BOOKSTORE.COM",
+                FirstName = "Paolo",
+                LastName = "Paci",
+                PasswordHash = hasher.HashPassword(null, "Micene@65"),
+            },
+            new ApiUser
+            {
+                Id ="8B22FC70-F6E8-48CD-8506-22F1DE1BCD69",
+                Email = "user@bookstore.com",
+                NormalizedEmail = "USER@BOOKSTORE.COM",
+                UserName = "user@bookstore.com",
+                NormalizedUserName = "USER@BOOKSTORE.COM",
+                FirstName = "User1",
+                LastName = "User2",
+                PasswordHash = hasher.HashPassword(null, "Micene@65"),
+            }
+        );
+
         OnModelCreatingPartial(modelBuilder);
     }
 
