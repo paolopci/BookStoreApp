@@ -61,7 +61,7 @@ namespace BookStoreApp.API.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login(LoginUserDto userDto)
+        public async Task<ActionResult<AuthResponse>> Login(LoginUserDto userDto)
         {
             _logger.LogInformation("Logging in user with email: {Email}", userDto.Email);
             try
@@ -80,10 +80,14 @@ namespace BookStoreApp.API.Controllers
                 // 8. Generazione del token tramite TokenService
                 var tokenString = await _tokenService.GenerateTokenAsync(user);
 
+                var response = new AuthResponse
+                {
+                    UserId = user.Id,
+                    Token = tokenString,
+                    Email = userDto.Email ?? string.Empty
+                };
 
-
-
-                return Ok(new { Token = tokenString });
+                return Ok(response);
             }
             catch (Exception ex)
             {
