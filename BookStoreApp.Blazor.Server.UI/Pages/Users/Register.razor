@@ -1,0 +1,21 @@
+﻿@page "/users/register"
+
+<h3>Register New Account</h3>
+
+
+<div class="card-body">
+    <EditForm Model="RegistrationModel" OnInvalidSubmit="HandleRegistration">
+
+    </EditForm>
+</div>
+
+@code {
+
+    UserDto RegistrationModel = new UserDto();
+
+    private async  Task HandleRegistration()
+    {
+        throw new NotImplementedException();
+    }
+
+}
