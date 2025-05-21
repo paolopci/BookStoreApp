@@ -2,20 +2,53 @@
 
 <h3>Register New Account</h3>
 
+<div class="card mt-4 shadow-sm">
+    <div class="card-body">
+        <EditForm Model="RegistrationModel" OnValidSubmit="HandleRegistration">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-<div class="card-body">
-    <EditForm Model="RegistrationModel" OnInvalidSubmit="HandleRegistration">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <InputText id="email" class="form-control" @bind-Value="RegistrationModel.Email" />
+                <ValidationMessage For="@(() => RegistrationModel.Email)" />
+            </div>
 
-    </EditForm>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" class="form-control" @bind-Value="RegistrationModel.Password" />
+                <ValidationMessage For="@(() => RegistrationModel.Password)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="firstName" class="form-label">First Name</label>
+                <InputText id="firstName" class="form-control" @bind-Value="RegistrationModel.FirstName" />
+                <ValidationMessage For="@(() => RegistrationModel.FirstName)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="lastName" class="form-label">Last Name</label>
+                <InputText id="lastName" class="form-control" @bind-Value="RegistrationModel.LastName" />
+                <ValidationMessage For="@(() => RegistrationModel.LastName)" />
+            </div>
+
+          @*   <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <InputText id="role" class="form-control" @bind-Value="RegistrationModel.Role" />
+                <ValidationMessage For="@(() => RegistrationModel.Role)" />
+            </div> *@
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </EditForm>
+    </div>
 </div>
 
 @code {
-
     UserDto RegistrationModel = new UserDto();
 
-    private async  Task HandleRegistration()
+    private async Task HandleRegistration()
     {
-        throw new NotImplementedException();
+        // TODO: Implement registration logic (e.g., call API, show success/error message)
+        await Task.CompletedTask;
     }
-
 }
