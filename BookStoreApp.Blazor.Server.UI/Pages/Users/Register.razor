@@ -1,6 +1,17 @@
 ﻿@page "/users/register"
+@inject IClient httpClient
+@inject NavigationManager _navigationManager
 
 <h3>Register New Account</h3>
+
+@if (string.IsNullOrEmpty(message)==false)
+{
+    <div class="alert alert-danger">
+        <p>@message</p>
+    </div>
+}
+
+
 
 <div class="card mt-4 shadow-sm">
     <div class="card-body">
@@ -32,7 +43,7 @@
                 <ValidationMessage For="@(() => RegistrationModel.LastName)" />
             </div>
 
-          @*   <div class="mb-3">
+            @*   <div class="mb-3">
                 <label for="role" class="form-label">Role</label>
                 <InputText id="role" class="form-control" @bind-Value="RegistrationModel.Role" />
                 <ValidationMessage For="@(() => RegistrationModel.Role)" />
@@ -46,9 +57,27 @@
 @code {
     UserDto RegistrationModel = new UserDto();
 
+    string message = string.Empty;
+
     private async Task HandleRegistration()
     {
-        // TODO: Implement registration logic (e.g., call API, show success/error message)
-        await Task.CompletedTask;
+        RegistrationModel.Role = "User";
+        try
+        {
+            await httpClient.RegisterAsync(RegistrationModel);
+            _navigationManager.NavigateTo("/users/login");
+        }
+        catch (ApiException ex)
+
+        {
+            message = "Registration failed: " + ex.Message+ " StatusCode: "+ex.StatusCode+" Response: "+ex.Response+".";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            message = "An unexpected error occurred. Please try again.";
+            StateHasChanged();
+        }
+
     }
 }
