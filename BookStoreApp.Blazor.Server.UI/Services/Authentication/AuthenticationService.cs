@@ -1,5 +1,7 @@
 ﻿using Blazored.LocalStorage;
+using BookStoreApp.Blazor.Server.UI.Providers;
 using BookStoreApp.Blazor.Server.UI.Services.Base;
+using Microsoft.AspNetCore.Components.Authorization;
 
 
 namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
@@ -8,12 +10,15 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
     {
         private readonly IClient _httpClient;
         private readonly ILocalStorageService _localStorage;
+        private readonly AuthenticationStateProvider _authenticationStateProvider;
         private const string TokenKey = "authToken";
 
-        public AuthenticationService(IClient httpClient, ILocalStorageService localStorage)
+        public AuthenticationService(IClient httpClient, ILocalStorageService localStorage, 
+                                     AuthenticationStateProvider authenticationStateProvider)
         {
             _httpClient = httpClient;
             _localStorage = localStorage;
+            _authenticationStateProvider = authenticationStateProvider;
         }
 
         public async Task<bool> AuthenticateAsync(LoginUserDto loginModel, CancellationTokenSource token)
@@ -24,6 +29,10 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
             {
                 // Store the JWT token in local storage
                 await _localStorage.SetItemAsync(TokenKey, response.Token);
+
+                // Change auth state of app
+                ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedIn();
+
                 return true;
             }
             return false;
