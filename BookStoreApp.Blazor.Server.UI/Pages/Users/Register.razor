@@ -21,25 +21,25 @@
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <InputText id="email" class="form-control" @bind-Value="RegistrationModel.Email" />
+                <InputText id="email" class="form-control" @bind-Value="RegistrationModel.Email"  autocomplete="off"/>
                 <ValidationMessage For="@(() => RegistrationModel.Email)" />
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <InputText id="password" type="password" class="form-control" @bind-Value="RegistrationModel.Password" />
+                <InputText id="password" type="password" class="form-control" @bind-Value="RegistrationModel.Password"  autocomplete="off"/>
                 <ValidationMessage For="@(() => RegistrationModel.Password)" />
             </div>
 
             <div class="mb-3">
                 <label for="firstName" class="form-label">First Name</label>
-                <InputText id="firstName" class="form-control" @bind-Value="RegistrationModel.FirstName" />
+                <InputText id="firstName" class="form-control" @bind-Value="RegistrationModel.FirstName"  autocomplete="off"/>
                 <ValidationMessage For="@(() => RegistrationModel.FirstName)" />
             </div>
 
             <div class="mb-3">
                 <label for="lastName" class="form-label">Last Name</label>
-                <InputText id="lastName" class="form-control" @bind-Value="RegistrationModel.LastName" />
+                <InputText id="lastName" class="form-control" @bind-Value="RegistrationModel.LastName" autocomplete="off" />
                 <ValidationMessage For="@(() => RegistrationModel.LastName)" />
             </div>
 

@@ -12,19 +12,19 @@
     <div class="alert alert-danger mt-3">@message</div>
 }
 
-<EditForm Model="LoginModel" OnValidSubmit="HandleLogin">
+<EditForm Model="LoginModel" OnValidSubmit="HandleLogin" >
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
-        <InputText id="email" class="form-control" @bind-Value="LoginModel.Email" />
+        <InputText id="email" class="form-control" @bind-Value="LoginModel.Email"  autocomplete="off"/>
         <ValidationMessage For="@(() => LoginModel.Email)" />
     </div>
 
     <div class="mb-3">
         <label for="password" class="form-label">Password</label>
-        <InputText id="password" type="password" class="form-control" @bind-Value="LoginModel.Password" />
+        <InputText id="password" type="password" class="form-control" @bind-Value="LoginModel.Password"  autocomplete="off"/>
         <ValidationMessage For="@(() => LoginModel.Password)" />
     </div>
 
