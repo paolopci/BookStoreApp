@@ -1,17 +1,15 @@
 ﻿@page "/users/login"
-@inject IClient httpClient
+@inject IAuthenticationService AuthService
 @inject IJSRuntime JS
 @inject NavigationManager _navigationManager
-@implements IDisposable
+
 
 
 <h3>Login</h3>
 
 @if (!string.IsNullOrEmpty(message))
 {
-    <div class="alert alert-danger" role="alert">
-        @message
-    </div>
+    <div class="alert alert-danger mt-3">@message</div>
 }
 
 <EditForm Model="LoginModel" OnValidSubmit="HandleLogin">
@@ -35,48 +33,41 @@
 
 @code {
     private LoginUserDto LoginModel = new LoginUserDto();
-    private CancellationTokenSource _cts = new();
-    string message = string.Empty;
+    private bool isLoading = false;
+    private string message;
+
+    private CancellationTokenSource cts = new CancellationTokenSource();
 
     private async Task HandleLogin()
     {
+        isLoading = true;
         message = string.Empty;
         try
         {
-            // Chiamata al client generato da NSwag usando direttamente il DTO
-            var auth = await httpClient.LoginAsync(LoginModel, _cts.Token);
-            if (auth is not null && !string.IsNullOrEmpty(auth.Token))
+            var success = await AuthService.AuthenticateAsync(LoginModel, cts);
+            if (success)
             {
-                // Salva il token in localStorage
-                await JS.InvokeVoidAsync("localStorage.setItem", "authToken", auth.Token);
-                // Reindirizza alla home
+                // Navigate to home or dashboard
                 _navigationManager.NavigateTo("/");
             }
-        }
-        catch (ApiException ex)
-        {
-
-            if (ex.StatusCode >= 200 && ex.StatusCode <= 299)
+            else
             {
-                NavigateToLogin();
+                message = "Invalid credentials. Please try again.";
             }
-
-
-            message = "Registration failed: " + ex.Message + " StatusCode: " + ex.StatusCode + " Response: " + ex.Response + ".";
-            StateHasChanged();
-
-
-            // // Gestione errore API
-            // var errorMsg = ex.Response ?? ex.Message;
-            // // Mostra errorMsg all'utente tramite UI (es. Snackbar, Alert)
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException)
+        {
+            message = "Login cancelled.";
+        }
+        catch (Exception ex)
+        {
+            message = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
-
-    private void NavigateToLogin()
-    {
-        _navigationManager.NavigateTo("/users/login");
-    }
-
-    public void Dispose() => _cts.Cancel();
 }
+
+

@@ -16,7 +16,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
             _localStorage = localStorage;
         }
 
-        public async Task<bool> AuthenticationAsync(LoginUserDto loginModel, CancellationTokenSource token)
+        public async Task<bool> AuthenticateAsync(LoginUserDto loginModel, CancellationTokenSource token)
         {
             var response = await _httpClient.LoginAsync(loginModel, token.Token);
 
@@ -28,8 +28,6 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
             }
             return false;
         }
-
-
 
 
         public async Task LogOut()
