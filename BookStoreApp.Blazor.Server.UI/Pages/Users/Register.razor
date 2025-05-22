@@ -55,12 +55,21 @@
 </div>
 
 @code {
-    UserDto RegistrationModel = new UserDto()
-        {
-            Role = "User"
-        };
+    private UserDto RegistrationModel = new UserDto()
+    {
+        Role = "User",
+        Email = string.Empty,
+        Password = string.Empty,
+        FirstName = string.Empty,
+        LastName = string.Empty
+    };
 
     string message = string.Empty;
+
+     
+
+
+
 
     private async Task HandleRegistration()
     {

@@ -1,0 +1,82 @@
+﻿@page "/users/login"
+@inject IClient httpClient
+@inject IJSRuntime JS
+@inject NavigationManager _navigationManager
+@implements IDisposable
+
+
+<h3>Login</h3>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-danger" role="alert">
+        @message
+    </div>
+}
+
+<EditForm Model="LoginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <InputText id="email" class="form-control" @bind-Value="LoginModel.Email" />
+        <ValidationMessage For="@(() => LoginModel.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="LoginModel.Password" />
+        <ValidationMessage For="@(() => LoginModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginUserDto LoginModel = new LoginUserDto();
+    private CancellationTokenSource _cts = new();
+    string message = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        message = string.Empty;
+        try
+        {
+            // Chiamata al client generato da NSwag usando direttamente il DTO
+            var auth = await httpClient.LoginAsync(LoginModel, _cts.Token);
+            if (auth is not null && !string.IsNullOrEmpty(auth.Token))
+            {
+                // Salva il token in localStorage
+                await JS.InvokeVoidAsync("localStorage.setItem", "authToken", auth.Token);
+                // Reindirizza alla home
+                _navigationManager.NavigateTo("/");
+            }
+        }
+        catch (ApiException ex)
+        {
+
+            if (ex.StatusCode >= 200 && ex.StatusCode <= 299)
+            {
+                NavigateToLogin();
+            }
+
+
+            message = "Registration failed: " + ex.Message + " StatusCode: " + ex.StatusCode + " Response: " + ex.Response + ".";
+            StateHasChanged();
+
+
+            // // Gestione errore API
+            // var errorMsg = ex.Response ?? ex.Message;
+            // // Mostra errorMsg all'utente tramite UI (es. Snackbar, Alert)
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private void NavigateToLogin()
+    {
+        _navigationManager.NavigateTo("/users/login");
+    }
+
+    public void Dispose() => _cts.Cancel();
+}
