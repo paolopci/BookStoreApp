@@ -31,7 +31,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
                 await _localStorage.SetItemAsync(TokenKey, response.Token);
 
                 // Change auth state of app
-                ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedIn();
+               await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedIn();
 
                 return true;
             }
@@ -42,7 +42,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
         public async Task LogOut()
         {
             // Remove the JWT token from local storage
-            await _localStorage.RemoveItemAsync(TokenKey);
+             await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedOut();
         }
     }
 }
