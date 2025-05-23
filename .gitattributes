@@ -1,0 +1,5 @@
+# Forza tutti i file di testo a terminatore LF su checkout
+* text=auto eol=lf
+
+# Mantieni CRLF per file Windows-specific se necessario
+# *.bat text eol=crlf
