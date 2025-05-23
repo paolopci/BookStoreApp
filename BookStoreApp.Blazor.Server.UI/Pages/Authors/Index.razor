@@ -1,0 +1,12 @@
+﻿@page "/authors/"
+@inject IClient HttpClient
+<h3>Index</h3>
+
+@code {
+    private List<AuthorReadOnlyDto> Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = (await HttpClient.AuthorsAllAsync()).ToList();
+    }
+}
