@@ -1,4 +1,5 @@
-﻿using Blazored.LocalStorage;
+﻿using System.Net.Http.Headers;
+using Blazored.LocalStorage;
 
 
 namespace BookStoreApp.Blazor.Server.UI.Services.Base
@@ -14,12 +15,37 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Base
             _localStorage = localStorage;
         }
 
-//        protected Response<Guid> ConvertApiExceptions<Guid>(ApiException apiException)
-//        {
-//            if (apiException.StatusCode == 400)
-//            {
-//return Response<Guid>(){Message="Validation errors have occured.",validationErrors=ex.Response}
-//            }
-//        }
+        protected Response<T> ConvertApiException<T>(ApiException apiException)
+        {
+            var response = new Response<T>();
+            if (apiException.StatusCode == 400)
+            {
+                response.Message = "Validation errors have occurred.";
+                response.ValidationErrors = apiException.Response;
+                response.Success = false;
+            }
+            else if (apiException.StatusCode == 404)
+            {
+                response.Message = "The requested item could not be found.";
+                response.Success = false;
+            }
+            else
+            {
+                response.Message = "Something went wrong, please try again.";
+                response.Success = false;
+            }
+            return response;
+        }
+
+        protected async Task GetBearerToken()
+        {
+            var token = await _localStorage.GetItemAsync<string>("accessToken");
+            if (!string.IsNullOrEmpty(token))
+            {
+                _client.HttpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("bearer", token);
+            }
+        }
     }
+
 }
