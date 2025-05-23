@@ -39,7 +39,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Base
 
         protected async Task GetBearerToken()
         {
-            var token = await _localStorage.GetItemAsync<string>("accessToken");
+            var token = await _localStorage.GetItemAsync<string>("authToken");
             if (!string.IsNullOrEmpty(token))
             {
                 _client.HttpClient.DefaultRequestHeaders.Authorization =
