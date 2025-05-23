@@ -1,0 +1,75 @@
+﻿@page "/users/login"
+@inject IAuthenticationService AuthService
+@inject IJSRuntime JS
+@inject NavigationManager _navigationManager
+
+
+
+<h3>Login</h3>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-danger mt-3">@message</div>
+}
+
+<EditForm Model="LoginModel" OnValidSubmit="HandleLogin" autocomplete="off">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <input type="text" name="fake-username" autocomplete="username" style="display:none" />
+    <input type="password" name="fake-password" autocomplete="new-password" style="display:none" />
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <InputText id="email" class="form-control" @bind-Value="LoginModel.Email" autocomplete="off" placeholder="Email" />
+        <ValidationMessage For="@(() => LoginModel.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="LoginModel.Password" autocomplete="new-password" placeholder="Password" />
+        <ValidationMessage For="@(() => LoginModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginUserDto LoginModel = new LoginUserDto();
+    private bool isLoading = false;
+    private string message;
+
+    private CancellationTokenSource cts = new CancellationTokenSource();
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        message = string.Empty;
+        try
+        {
+            var success = await AuthService.AuthenticateAsync(LoginModel, cts);
+            if (success)
+            {
+                // Navigate to home or dashboard
+                _navigationManager.NavigateTo("/");
+            }
+            else
+            {
+                message = "Invalid credentials. Please try again.";
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            message = "Login cancelled.";
+        }
+        catch (Exception ex)
+        {
+            message = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
+
