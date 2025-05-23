@@ -1,7 +1,5 @@
 ﻿@page "/authors/"
-@using System.Net.Http.Headers
 @inject IClient HttpClient
-
 <h3>Index</h3>
 
 
@@ -51,16 +49,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Effettua il login via API e otieni il token
-      //  var loginDto = new LoginUserDto() {Email = "admin@bookstore.com", Password = "Micene@65"};
-        var auth = await HttpClient.LoginAsync(new LoginUserDto() {Email = "admin@bookstore.com", Password = "Micene@65"});
-        // var authResponse = await HttpClient.LoginAsync(loginDto);
-
-        // 2. Imposta il barer token sullHttpClient interno
-         HttpClient.SetBearerToken(auth.Token);
-
-
-        // 3. Effettua la chiamata per ottenere gli autori
         Authors = (await HttpClient.AuthorsAllAsync()).ToList();
     }
 }

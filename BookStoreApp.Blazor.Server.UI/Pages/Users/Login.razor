@@ -1,7 +1,6 @@
 ﻿@page "/users/login"
 @inject IAuthenticationService AuthService
 @inject IJSRuntime JS
-
 @inject NavigationManager _navigationManager
 
 
@@ -45,7 +44,6 @@
     {
         isLoading = true;
         message = string.Empty;
-      
         try
         {
             var success = await AuthService.AuthenticateAsync(LoginModel, cts);
