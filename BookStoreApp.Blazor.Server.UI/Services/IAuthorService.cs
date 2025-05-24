@@ -7,5 +7,6 @@ namespace BookStoreApp.Blazor.Server.UI.Services
     {
         Task<Response<List<AuthorReadOnlyDto>>> GetAllAuthors();
         Task<Response<AuthorCreateDto>> AuthorCreateAsync(AuthorCreateDto authorCreateDto);
+        Task<Response<AuthorUpdateDto>> AuthorUpdateAsync(AuthorUpdateDto authorUpdateDto);
     }
 }
