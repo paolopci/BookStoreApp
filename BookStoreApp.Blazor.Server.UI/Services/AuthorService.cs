@@ -13,6 +13,22 @@ namespace BookStoreApp.Blazor.Server.UI.Services
         }
 
 
+        public async Task<Response<AuthorReadOnlyDto>> GetAuthorByIdAsync(int id)
+        {
+            Response<AuthorReadOnlyDto> response;
+            try
+            {
+                await GetBearerToken();
+                var data = await _client.AuthorsGETAsync(id);
+                response = new Response<AuthorReadOnlyDto> { Data = data, Success = true };
+            }
+            catch (ApiException ex)
+            {
+                response = ConvertApiException<AuthorReadOnlyDto>(ex);
+            }
+            return response;
+        }
+
         public async Task<Response<List<AuthorReadOnlyDto>>> GetAllAuthors()
         {
             Response<List<AuthorReadOnlyDto>> response;
@@ -66,7 +82,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             }
             catch (ApiException ex)
             {
-                  response = ConvertApiException<AuthorUpdateDto>(ex);
+                response = ConvertApiException<AuthorUpdateDto>(ex);
             }
 
             return response;

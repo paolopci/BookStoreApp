@@ -1,6 +1,95 @@
 ﻿@page "/authors/update/{id:int}"
+
+@inject NavigationManager NavigationManager
+@inject IAuthorService AuthorService
 <h3>Update Author</h3>
 
-@code {
 
+
+@if (isLoading)
+{
+    <p><em>Caricamento in corso…</em></p>
 }
+else if (!loadSuccess)
+{
+    <div class="alert alert-danger">Errore nel recupero dei dati.</div>
+}
+else
+{
+    <EditForm Model="author" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <InputText class="form-control" @bind-Value="author.FirstName" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cognome</label>
+            <InputText class="form-control" @bind-Value="author.LastName" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Biografia</label>
+            <InputTextArea class="form-control" @bind-Value="author.Bio" Rows="5" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salva</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="() => NavigationManager.NavigateTo("/authors")">Annulla</button>
+    </EditForm>
+}
+
+
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private AuthorUpdateDto author = new();
+    private bool isLoading = true;
+    private bool loadSuccess = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var resp = await AuthorService.GetAuthorByIdAsync(Id);
+            if (resp.Success)
+            {
+                author = new AuthorUpdateDto
+                {
+                    Id = resp.Data.Id,
+                    FirstName = resp.Data.FirstName,
+                    LastName = resp.Data.LastName,
+                    Bio = resp.Data.Bio
+                };
+            }
+            else
+            {
+                loadSuccess = false;
+            }
+        }
+        catch
+        {
+            loadSuccess = false;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var resp = await AuthorService.AuthorUpdateAsync(author);
+        if (resp.Success)
+        {
+            NavigationManager.NavigateTo("/authors");
+        }
+        else
+        {
+            // Qui potresti mostrare resp.Message o resp.ValidationErrors
+        }
+    }
+}
+
