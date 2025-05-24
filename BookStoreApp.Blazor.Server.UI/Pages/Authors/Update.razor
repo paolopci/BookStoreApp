@@ -4,8 +4,6 @@
 @inject IAuthorService AuthorService
 <h3>Update Author</h3>
 
-
-
 @if (isLoading)
 {
     <p><em>Caricamento in corso…</em></p>
@@ -16,6 +14,10 @@ else if (!loadSuccess)
 }
 else
 {
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
     <EditForm Model="author" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
@@ -35,12 +37,20 @@ else
             <InputTextArea class="form-control" @bind-Value="author.Bio" Rows="5" />
         </div>
 
+        @if (validationErrors != null && validationErrors.Count > 0)
+        {
+            <ul class="text-danger">
+                @foreach (var err in validationErrors)
+                {
+                    <li>@err</li>
+                }
+            </ul>
+        }
+
         <button type="submit" class="btn btn-primary">Salva</button>
-        <button type="button" class="btn btn-secondary ms-2" @onclick="() => NavigationManager.NavigateTo("/authors")">Annulla</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick='@(() => NavigationManager.NavigateTo("/authors"))'>Annulla</button>
     </EditForm>
 }
-
-
 
 @code {
     [Parameter] public int Id { get; set; }
@@ -48,6 +58,8 @@ else
     private AuthorUpdateDto author = new();
     private bool isLoading = true;
     private bool loadSuccess = true;
+    private string? errorMessage;
+    private List<string>? validationErrors;
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,8 +100,10 @@ else
         }
         else
         {
-            // Qui potresti mostrare resp.Message o resp.ValidationErrors
+            errorMessage = resp.Message;
+            validationErrors = string.IsNullOrEmpty(resp.ValidationErrors)
+                ? new List<string>()
+                : new List<string> { resp.ValidationErrors };
         }
     }
 }
-

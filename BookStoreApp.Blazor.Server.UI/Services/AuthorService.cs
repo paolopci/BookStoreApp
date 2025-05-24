@@ -1,4 +1,5 @@
-﻿using Blazored.LocalStorage;
+﻿using AutoMapper;
+using Blazored.LocalStorage;
 using BookStoreApp.Blazor.Server.UI.Services.Base;
 
 
@@ -7,9 +8,13 @@ namespace BookStoreApp.Blazor.Server.UI.Services
     public class AuthorService : BaseHttpService, IAuthorService
     {
         private readonly IClient _client;
-        public AuthorService(IClient client, ILocalStorageService localStorage) : base(client, localStorage)
+        private readonly IMapper _mapper;
+         
+
+        public AuthorService(IClient client, ILocalStorageService localStorage,IMapper mapper) : base(client, localStorage)
         {
             _client = client;
+            _mapper = mapper;
         }
 
 
