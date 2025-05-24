@@ -12,7 +12,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             _client = client;
         }
 
-        
+
         public async Task<Response<List<AuthorReadOnlyDto>>> GetAllAuthors()
         {
             Response<List<AuthorReadOnlyDto>> response;
@@ -21,7 +21,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             {
                 // Recupera e imposta il token Bearer per l'autenticazione delle richieste HTTP.
                 await GetBearerToken();
-               
+
                 var data = await _client.AuthorsAllAsync();
                 response = new Response<List<AuthorReadOnlyDto>>()
                 {
@@ -35,6 +35,24 @@ namespace BookStoreApp.Blazor.Server.UI.Services
                 response = ConvertApiException<List<AuthorReadOnlyDto>>(apiException);
             }
 
+            return response;
+        }
+
+        public async Task<Response<AuthorCreateDto>> AuthorCreateAsync(AuthorCreateDto authorCreateDto)
+        {
+            Response<AuthorCreateDto> response = new() { Success = true };
+
+            try
+            {
+                await GetBearerToken();
+                var data = await _client.AuthorsPOSTAsync(authorCreateDto);
+            }
+            catch (ApiException apiException)
+            {
+                // Gestione dell'eccezione API.
+                var errorResponse = ConvertApiException<AuthorCreateDto>(apiException);
+                // throw new Exception(errorResponse.Message);
+            }
             return response;
         }
     }

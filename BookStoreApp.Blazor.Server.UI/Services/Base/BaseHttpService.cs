@@ -29,6 +29,11 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Base
                 response.Message = "The requested item could not be found.";
                 response.Success = false;
             }
+            else if (apiException.StatusCode >= 200 && apiException.StatusCode <= 299)
+            {
+                response.Message = "Request was successful.";
+                response.Success = true;
+            }
             else
             {
                 response.Message = "Something went wrong, please try again.";
