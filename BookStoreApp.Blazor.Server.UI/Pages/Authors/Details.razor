@@ -1,0 +1,44 @@
+﻿@page "/authors/details/{AuthorId:int}"
+@inject NavigationManager NavigationManager
+@inject IAuthorService authorService
+
+<h3>Author Details</h3>
+
+
+<EditForm Model="Author">
+    <fieldset disabled="true">
+        <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <InputText id="firstName" class="form-control" @bind-Value="Author.FirstName" />
+            <ValidationMessage For="@(() => Author.FirstName)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <InputText id="lastName" class="form-control" @bind-Value="Author.LastName" />
+            <ValidationMessage For="@(() => Author.LastName)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="bio" class="form-label">Bio</label>
+            <InputTextArea id="bio" class="form-control" @bind-Value="Author.Bio" />
+            <ValidationMessage For="@(() => Author.Bio)" />
+        </div>
+    </fieldset>
+
+
+    <button type="submit" class="btn btn-primary"><span class="oi oi-pencil me-2" aria-hidden="true"></span>Create Author</button>
+    <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Back To List</button>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private AuthorCreateDto Author = new();
+
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/authors");
+    }
+}
