@@ -1,4 +1,4 @@
-﻿@page "/authors/details/{AuthorId:int}"
+﻿@page "/authors/details/{id:int}"
 @inject NavigationManager NavigationManager
 @inject IAuthorService authorService
 
@@ -27,18 +27,47 @@
     </fieldset>
 
 
-    <button type="submit" class="btn btn-primary"><span class="oi oi-pencil me-2" aria-hidden="true"></span>Create Author</button>
+    <button type="submit" class="btn btn-primary" @onclick="GoToEdit"><span class="oi oi-pencil me-2" aria-hidden="true"></span>Edit Author</button>
     <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Back To List</button>
 </EditForm>
 
 @code {
     [Parameter] public int Id { get; set; }
 
-    private AuthorCreateDto Author = new();
+    private AuthorReadOnlyDto Author = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await authorService.GetAuthorByIdAsync(Id);
+            if (response.Success)
+            {
+                Author = response.Data;
+            }
+            else
+            {
+                // Handle error, e.g., show a message or redirect
+                NavigationManager.NavigateTo("/authors");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log the exception and handle it accordingly
+            Console.Error.WriteLine($"Error fetching author details: {ex.Message}");
+            NavigationManager.NavigateTo("/authors");
+        }
+    }
 
 
     private void GoBack()
     {
         NavigationManager.NavigateTo("/authors");
     }
+
+    private void GoToEdit()
+    {
+        NavigationManager.NavigateTo($"/authors/update/{Id:int}");
+    }
+
 }
