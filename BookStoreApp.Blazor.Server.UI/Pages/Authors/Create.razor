@@ -1,0 +1,66 @@
+﻿@page "/authors/create"
+@using BookStoreApp.Blazor.Server.UI.Static
+@inject NavigationManager NavigationManager
+@inject IAuthorService AuthorService
+@attribute [Authorize(Roles = Roles.Administrator)]
+
+<h3>Create New Author</h3>
+
+<EditForm Model="Author" OnValidSubmit="HandleCreateAuthor">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="firstName" class="form-label">First Name</label>
+        <InputText id="firstName" class="form-control" @bind-Value="Author.FirstName" />
+        <ValidationMessage For="@(() => Author.FirstName)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="lastName" class="form-label">Last Name</label>
+        <InputText id="lastName" class="form-control" @bind-Value="Author.LastName" />
+        <ValidationMessage For="@(() => Author.LastName)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="bio" class="form-label">Bio</label>
+        <InputTextArea id="bio" class="form-control" @bind-Value="Author.Bio" />
+        <ValidationMessage For="@(() => Author.Bio)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary"><span class="oi oi-pencil me-2" aria-hidden="true"></span>Create Author</button>
+    <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Back To List</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger mt-3">@ErrorMessage</div>
+}
+
+@code {
+    private AuthorCreateDto Author = new AuthorCreateDto();
+    private string? ErrorMessage;
+
+    private async Task HandleCreateAuthor(EditContext context)
+    {
+        ErrorMessage = null;
+        try
+        {
+            var author = await AuthorService.AuthorCreateAsync(Author);
+            if (author.Success)
+            {
+                GoBack();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "An error occurred while creating the author. " + ex.Message;
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/authors");
+    }
+}
