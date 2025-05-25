@@ -8,16 +8,21 @@
 <EditForm Model="Author">
     <fieldset disabled="true">
         <div class="mb-3">
-            <label for="firstName" class="form-label">First Name</label>
-            <InputText id="firstName" class="form-control" @bind-Value="Author.FirstName" />
-            <ValidationMessage For="@(() => Author.FirstName)" />
-        </div>
-
-        <div class="mb-3">
             <label for="lastName" class="form-label">Last Name</label>
             <InputText id="lastName" class="form-control" @bind-Value="Author.LastName" />
             <ValidationMessage For="@(() => Author.LastName)" />
         </div>
+        <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <InputText id="firstName" class="form-control" @bind-Value="Author.FirstName" />
+            <ValidationMessage For="@(() => Author.FirstName)" />
+        </div>
+@* 
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <InputText id="lastName" class="form-control" @bind-Value="Author.LastName" />
+            <ValidationMessage For="@(() => Author.LastName)" />
+        </div> *@
 
         <div class="mb-3">
             <label for="bio" class="form-label">Bio</label>
@@ -30,6 +35,31 @@
     <button type="submit" class="btn btn-primary" @onclick="GoToEdit"><span class="oi oi-pencil me-2" aria-hidden="true"></span>Edit Author</button>
     <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Back To List</button>
 </EditForm>
+
+@* @if (Author.Books == null && Author.Books.Any() == false)
+{
+    <div class="alert alert-dismissible alert-secondary">
+        No Books for this Author
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var book in Author.Books)
+        {
+            <div class="col-3">
+                <div class="card" style="width: 18rem;">
+                    <img src="@book.Image" class="card-img-top" alt="@book.Title" style="width: 286px; height: 164px;"/>
+                    <div class="card-body">
+                        <h5 class="card-title">@book.Title - @(book.Price.HasValue ? book.Price.Value.ToString("C") : "")</h5>
+                        <p class="card-text"></p>
+                        <a href="/books/details/@book.Id" class="btn btn-primary">View Book</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+} *@
 
 @code {
     [Parameter] public int Id { get; set; }

@@ -10,6 +10,7 @@
 		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
+		 <PackageReference Include="AutoMapper" Version="14.0.0" />
 
 	</ItemGroup>
 
