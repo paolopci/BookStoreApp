@@ -1,7 +1,8 @@
 ﻿@page "/authors/update/{id:int}"
-
 @inject NavigationManager NavigationManager
 @inject IAuthorService AuthorService
+@attribute [Authorize(Roles = Roles.Administrator)]
+
 <h3>Update Author</h3>
 
 @if (isLoading)
