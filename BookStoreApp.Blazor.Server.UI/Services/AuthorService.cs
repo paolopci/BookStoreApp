@@ -118,5 +118,23 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             }
             return response;
         }
+
+        public async Task<Response<int>>  AuthorDeleteAsync(int id)
+        {
+            Response<int> response = new();
+            try
+            {
+                await GetBearerToken();
+                await _client.AuthorsDELETEAsync(id);
+                
+            }
+            
+            catch (ApiException ex)
+            {
+                
+                response=ConvertApiException<int>(ex);
+            }
+            return response;
+        }
     }
 }
