@@ -17,12 +17,6 @@
             <InputText id="firstName" class="form-control" @bind-Value="Author.FirstName" />
             <ValidationMessage For="@(() => Author.FirstName)" />
         </div>
-@* 
-        <div class="mb-3">
-            <label for="lastName" class="form-label">Last Name</label>
-            <InputText id="lastName" class="form-control" @bind-Value="Author.LastName" />
-            <ValidationMessage For="@(() => Author.LastName)" />
-        </div> *@
 
         <div class="mb-3">
             <label for="bio" class="form-label">Bio</label>
@@ -36,7 +30,7 @@
     <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Back To List</button>
 </EditForm>
 
-@* @if (Author.Books == null && Author.Books.Any() == false)
+@if (Author.Books == null || !Author.Books.Any())
 {
     <div class="alert alert-dismissible alert-secondary">
         No Books for this Author
@@ -49,9 +43,9 @@ else
         {
             <div class="col-3">
                 <div class="card" style="width: 18rem;">
-                    <img src="@book.Image" class="card-img-top" alt="@book.Title" style="width: 286px; height: 164px;"/>
+                    <img src="@book.Image" class="card-img-top" alt="@book.Title" style="width: 286px; height: 164px;" />
                     <div class="card-body">
-                        <h5 class="card-title">@book.Title - @(book.Price.HasValue ? book.Price.Value.ToString("C") : "")</h5>
+                        <h5 class="card-title">@book.Title - @book.Price.ToString("C") </h5>
                         <p class="card-text"></p>
                         <a href="/books/details/@book.Id" class="btn btn-primary">View Book</a>
                     </div>
@@ -59,18 +53,18 @@ else
             </div>
         }
     </div>
-} *@
+}
 
 @code {
     [Parameter] public int Id { get; set; }
 
-    private AuthorReadOnlyDto Author = new();
+    private AuthorDetailsDto Author = new();
 
     protected async override Task OnInitializedAsync()
     {
         try
         {
-            var response = await authorService.GetAuthorByIdAsync(Id);
+            var response = await authorService.GetAuthorDetailsAsync(Id);
             if (response.Success)
             {
                 Author = response.Data;
@@ -97,7 +91,7 @@ else
 
     private void GoToEdit()
     {
-        NavigationManager.NavigateTo($"/authors/update/{Id:int}");
+        NavigationManager.NavigateTo($"/authors/update/{Id}");
     }
 
 }

@@ -1,5 +1,6 @@
 
 using Blazored.LocalStorage;
+using BookStoreApp.Blazor.Server.UI.Configuration;
 using BookStoreApp.Blazor.Server.UI.Providers;
 using BookStoreApp.Blazor.Server.UI.Services;
 using BookStoreApp.Blazor.Server.UI.Services.Authentication;
@@ -22,7 +23,7 @@ builder.Services.AddHttpClient<IClient, Client>("Default", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7073/");
 });
-
+builder.Services.AddAutoMapper(typeof(MapperConfig));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

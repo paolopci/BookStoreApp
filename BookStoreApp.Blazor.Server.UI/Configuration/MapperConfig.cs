@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BookStoreApp.Blazor.Server.UI.Services.Base;
 
 
 namespace BookStoreApp.Blazor.Server.UI.Configuration
@@ -8,9 +9,9 @@ namespace BookStoreApp.Blazor.Server.UI.Configuration
         public MapperConfig()
         {
             // Add your mapping configurations here
-           
-           //  CreateMap<Author, DestinationModel>();
-            // CreateMap<AuthorReadOnlyDto, AuthorViewModel>();
+
+            CreateMap<AuthorDetailsDto, AuthorUpdateDto>().ReverseMap();
+            CreateMap<BookDetailsDto, BookUpdateDto>().ReverseMap();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services
     public class AuthorService : BaseHttpService, IAuthorService
     {
         private readonly IClient _client;
-         
+
 
         public AuthorService(IClient client, ILocalStorageService localStorage) : base(client, localStorage)
         {
@@ -22,7 +22,17 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             {
                 await GetBearerToken();
                 var data = await _client.AuthorsGETAsync(id);
-                response = new Response<AuthorReadOnlyDto> { Data = data, Success = true };
+
+                // Map AuthorDetailsDto to AuthorReadOnlyDto
+                var authorReadOnlyDto = new AuthorReadOnlyDto
+                {
+                    Id = data.Id,
+                    FirstName = data.FirstName,
+                    LastName = data.LastName,
+                    Bio = data.Bio
+                };
+
+                response = new Response<AuthorReadOnlyDto> { Data = authorReadOnlyDto, Success = true };
             }
             catch (ApiException ex)
             {
@@ -87,6 +97,25 @@ namespace BookStoreApp.Blazor.Server.UI.Services
                 response = ConvertApiException<AuthorUpdateDto>(ex);
             }
 
+            return response;
+        }
+
+        public async Task<Response<AuthorDetailsDto>> GetAuthorDetailsAsync(int id)
+        {
+            Response<AuthorDetailsDto> response = new() { Success = true };
+            try
+            {
+
+                await GetBearerToken();
+                var data = await _client.AuthorsGETAsync(id);
+                response.Data = data;
+                response.Success = true;
+            }
+            catch (ApiException ex)
+            {
+                response = ConvertApiException<AuthorDetailsDto>(ex);
+
+            }
             return response;
         }
     }
