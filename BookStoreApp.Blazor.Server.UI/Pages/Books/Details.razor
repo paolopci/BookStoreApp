@@ -1,0 +1,101 @@
+﻿@page "/books/details/{id:int}"
+@inject NavigationManager NavigationManager
+@inject IBookService bookService
+
+<h3>Author Details</h3>
+
+
+<EditForm Model="Book">
+    <fieldset disabled="true">
+        <div class="mb-3">
+            <label for="image" class="form-label">Book Cover Photo</label>
+            <img id="image" src="@Book.Image" width="100" height="100" class="img-thumbnail" />
+        </div>
+        <div class="mb-3">
+            <label for="title" class="form-label">Book Title</label>
+            <InputText id="title" class="form-control" @bind-Value="Book.Title" />
+        </div>
+
+        <div class="mb-3">
+            <label for="year" class="form-label">Year</label>
+            <InputNumber id="year" class="form-control" @bind-Value="Book.Year" />
+        </div>
+
+        <div class="mb-3">
+            <label for="isbn" class="form-label">ISBN</label>
+            <InputText id="isbn" class="form-control" @bind-Value="Book.Isbn" />
+        </div>
+
+        <div class="mb-3">
+            <label for="summary" class="form-label">Summary</label>
+            <InputTextArea id="summary" class="form-control" @bind-Value="Book.Summary" rows="4" />
+        </div>
+
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <InputNumber id="price" class="form-control" @bind-Value="Book.Price" style="width:100px" />
+        </div>
+
+        <div class="mb-3">
+            <label for="author" class="form-label">Author Name</label>
+            <InputText id="author" class="form-control" @bind-Value="Book.AuthorName" />
+        </div>
+        
+    </fieldset>
+
+
+    <button type="submit" class="btn btn-primary" @onclick="GoToEdit"><span class="oi oi-pencil me-2" aria-hidden="true"></span>Edit Author</button>
+    <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Back To List</button>
+</EditForm>
+
+@if (Book == null)
+{
+    <div class="alert alert-dismissible alert-secondary">
+        No Books for this Author
+    </div>
+}
+else
+{
+    //
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private BookDetailsDto Book = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await bookService.GetBookDetailsAsync(Id);
+            if (response.Success)
+            {
+                Book = response.Data;
+            }
+            else
+            {
+                // Handle error, e.g., show a message or redirect
+                NavigationManager.NavigateTo("/books");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log the exception and handle it accordingly
+            Console.Error.WriteLine($"Error fetching author details: {ex.Message}");
+            NavigationManager.NavigateTo("/books");
+        }
+    }
+
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/books");
+    }
+
+    private void GoToEdit()
+    {
+        NavigationManager.NavigateTo($"/books/update/{Id}");
+    }
+
+}
