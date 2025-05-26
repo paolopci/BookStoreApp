@@ -1,5 +1,7 @@
-﻿using Blazored.LocalStorage;
+﻿using AutoMapper;
+using Blazored.LocalStorage;
 using BookStoreApp.Blazor.Server.UI.Services.Base;
+
 
 
 namespace BookStoreApp.Blazor.Server.UI.Services;
@@ -7,11 +9,13 @@ namespace BookStoreApp.Blazor.Server.UI.Services;
 public class BookService : BaseHttpService, IBookService
 {
     private readonly IClient _client;
+    private readonly IMapper _mapper;
 
 
-    public BookService(IClient client, ILocalStorageService localStorage) : base(client, localStorage)
+    public BookService(IClient client, ILocalStorageService localStorage, IMapper mapper) : base(client, localStorage)
     {
         _client = client;
+        _mapper = mapper;
     }
 
 
@@ -86,17 +90,19 @@ public class BookService : BaseHttpService, IBookService
         return response;
     }
 
-    public async Task<Response<BookUpdateDto>> BookUpdateAsync(BookUpdateDto bookUpdateDto)
+    public async Task<Response<BookUpdateDto>> BookUpdateAsync(int id)
     {
         Response<BookUpdateDto> response = new() { Success = true };
         try
         {
             await GetBearerToken();
-            await _client.BooksPUTAsync(bookUpdateDto.Id, bookUpdateDto);
+            var data = await _client.BooksGETAsync(id);
+            response.Data = _mapper.Map<BookUpdateDto>(data);
         }
         catch (ApiException ex)
         {
             response = ConvertApiException<BookUpdateDto>(ex);
+            response.Success = true;
         }
 
         return response;
@@ -118,6 +124,22 @@ public class BookService : BaseHttpService, IBookService
             response = ConvertApiException<BookDetailsDto>(ex);
 
         }
+        return response;
+    }
+
+    public async  Task<Response<int>> GetBookEdit(int id, BookUpdateDto book)
+    {
+       Response<int> response = new();
+       try
+       {
+           await GetBearerToken();
+           await _client.BooksPUTAsync(id, book);
+        }
+        catch (ApiException exception)
+        {
+            response = ConvertApiException<int>(exception);
+        }
+
         return response;
     }
 

@@ -1,0 +1,123 @@
+﻿@page "/books/update/{id:int}"
+@inject NavigationManager NavigationManager
+@inject IBookService BookService
+@inject IAuthorService AuthorService
+@attribute [Authorize(Roles = Roles.Administrator)]
+
+<h3>Update Book</h3>
+
+@if (isLoading)
+{
+    <p><em>Caricamento in corso…</em></p>
+}
+else if (!loadSuccess)
+{
+    <div class="alert alert-danger">Errore nel recupero dei dati.</div>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    <EditForm Model="Book" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Book Title</label>
+            <InputText id="title" class="form-control" @bind-Value="Book.Title" />
+            <ValidationMessage For="@(() => Book.Title)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="year" class="form-label">Year</label>
+            <InputNumber id="year" class="form-control" @bind-Value="Book.Year" />
+        </div>
+
+        <div class="mb-3">
+            <label for="isbn" class="form-label">ISBN</label>
+            <InputText id="isbn" class="form-control" @bind-Value="Book.Isbn" />
+            <ValidationMessage For="@(() => Book.Isbn)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="summary" class="form-label">Summary</label>
+            <InputTextArea id="summary" class="form-control" @bind-Value="Book.Summary" rows="4" />
+            <ValidationMessage For="@(() => Book.Summary)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <InputNumber id="price" class="form-control" @bind-Value="Book.Price" />
+            <ValidationMessage For="@(() => Book.Price)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salva</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick='@(() => NavigationManager.NavigateTo("/books"))'>Annulla</button>
+    </EditForm>
+}
+
+@code {
+
+
+
+    [Parameter] public int Id { get; set; }
+
+    private BookUpdateDto Book = new();
+    private List<AuthorReadOnlyDto> Authors = new();
+    private bool isLoading = true;
+    private bool loadSuccess = true;
+    private string? errorMessage;
+    private string img = string.Empty;
+    private List<string>? validationErrors;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            var resp = await BookService.BookUpdateAsync(Id);
+            if (resp.Success)
+            {
+                Book = resp.Data;
+                img = Book.Image;
+            }
+            var authorsResponse = await AuthorService.GetAllAuthors();
+            if (authorsResponse.Success)
+            {
+                Authors = authorsResponse.Data;
+            }
+            else
+            {
+                loadSuccess = false;
+                errorMessage = "Errore nel caricamento degli autori.";
+            }
+        }
+        catch
+        {
+            loadSuccess = false;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var resp = await BookService.GetBookEdit(Id, Book);
+        if (resp.Success)
+        {
+            NavigationManager.NavigateTo("/books");
+        }
+        else
+        {
+            errorMessage = resp.Message;
+            validationErrors = string.IsNullOrEmpty(resp.ValidationErrors)
+                ? new List<string>()
+                : new List<string> { resp.ValidationErrors };
+        }
+    }
+
+}
