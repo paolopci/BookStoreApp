@@ -12,4 +12,6 @@ namespace BookStoreApp.Blazor.Server.UI.Services
         Task<Response<AuthorDetailsDto>> GetAuthorDetailsAsync(int id);
         Task<Response<int>> AuthorDeleteAsync(int id);
     }
+
+
 }
