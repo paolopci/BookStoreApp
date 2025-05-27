@@ -1,5 +1,6 @@
 using BookStoreApp.API.Configurations;
 using BookStoreApp.API.Data;
+using BookStoreApp.API.Repositories;
 using BookStoreApp.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +17,8 @@ builder.Services.AddDbContext<BookStoreDbContext>(options =>
     options.UseSqlServer(connString)
 );
 
+builder.Services.AddScoped<IAuthorsRepository, AuthorsRepository>();
+builder.Services.AddScoped<IBooksRepository, BooksRepository>();
 // Configure Identity
 builder.Services.AddIdentityCore<ApiUser>()
                 .AddRoles<IdentityRole>()
