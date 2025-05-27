@@ -1,0 +1,106 @@
+﻿@page "/users/register"
+@inject IClient httpClient
+@inject NavigationManager _navigationManager
+
+<h3>Register New Account</h3>
+
+@if (string.IsNullOrEmpty(message) == false)
+{
+    <div class="alert alert-danger">
+        <p>@message</p>
+    </div>
+}
+
+
+
+<div class="card mt-4 shadow-sm">
+    <div class="card-body">
+        <EditForm Model="RegistrationModel" OnValidSubmit="HandleRegistration">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <InputText id="email" class="form-control" @bind-Value="RegistrationModel.Email"  autocomplete="off"/>
+                <ValidationMessage For="@(() => RegistrationModel.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" class="form-control" @bind-Value="RegistrationModel.Password"  autocomplete="off"/>
+                <ValidationMessage For="@(() => RegistrationModel.Password)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="firstName" class="form-label">First Name</label>
+                <InputText id="firstName" class="form-control" @bind-Value="RegistrationModel.FirstName"  autocomplete="off"/>
+                <ValidationMessage For="@(() => RegistrationModel.FirstName)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="lastName" class="form-label">Last Name</label>
+                <InputText id="lastName" class="form-control" @bind-Value="RegistrationModel.LastName" autocomplete="off" />
+                <ValidationMessage For="@(() => RegistrationModel.LastName)" />
+            </div>
+
+            @*   <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <InputText id="role" class="form-control" @bind-Value="RegistrationModel.Role" />
+                <ValidationMessage For="@(() => RegistrationModel.Role)" />
+            </div> *@
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private UserDto RegistrationModel = new UserDto()
+    {
+        Role = "User",
+        Email = string.Empty,
+        Password = string.Empty,
+        FirstName = string.Empty,
+        LastName = string.Empty
+    };
+
+    string message = string.Empty;
+
+     
+
+
+
+
+    private async Task HandleRegistration()
+    {
+        try
+        {
+            await httpClient.RegisterAsync(RegistrationModel);
+          //  _navigationManager.NavigateTo("/users/login");
+        }
+        catch (ApiException ex)
+
+        {
+
+            if (ex.StatusCode >= 200 && ex.StatusCode <= 299)
+            {
+                NavigateToLogin();
+            }
+
+
+            message = "Registration failed: " + ex.Message + " StatusCode: " + ex.StatusCode + " Response: " + ex.Response + ".";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            message = "An unexpected error occurred. Please try again.";
+            StateHasChanged();
+        }
+
+    }
+
+    private void NavigateToLogin()
+    {
+        _navigationManager.NavigateTo("/users/login");
+    }
+}
