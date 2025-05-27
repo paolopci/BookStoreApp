@@ -34,7 +34,7 @@ namespace BookStoreApp.API.Controllers
             _logger.LogInformation("[GetAuthors] Starting retrieval of all authors.");
             try
             {
-                var authors = _mapper.Map<List<AuthorReadOnlyDto>>(await _authorsRepository.get());
+                var authors = _mapper.Map<List<AuthorReadOnlyDto>>(await _authorsRepository.GetAllAsync());
                 _logger.LogInformation("[GetAuthors] Retrieved {Count} authors.", authors.Count);
                 return Ok(authors);
             }
