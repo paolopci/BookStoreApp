@@ -16,8 +16,9 @@ namespace BookStoreApp.API.Models.Dto
 
         public string? Summary { get; set; }
 
-        [Url(ErrorMessage = "L'URL dell'immagine non è valido.")]
-        public string? Image { get; set; }
+       
+        public string ImageData { get; set; }
+        public string OriginalImageName { get; set; }
 
         [Range(0.0, double.MaxValue, ErrorMessage = "Il prezzo deve essere un valore positivo.")]
         public decimal? Price { get; set; }

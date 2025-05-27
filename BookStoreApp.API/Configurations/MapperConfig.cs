@@ -25,7 +25,7 @@ namespace BookStoreApp.API.Configurations
             CreateMap<BookCreateDto, Book>()
                 .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId))
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image))
+                .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageData))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
                 .ForMember(dest => dest.Isbn, opt => opt.MapFrom(src => src.Isbn))
                 .ForMember(dest => dest.Summary, opt => opt.MapFrom(src => src.Summary))

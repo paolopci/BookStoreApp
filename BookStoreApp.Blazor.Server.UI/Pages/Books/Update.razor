@@ -1,0 +1,174 @@
+﻿@page "/books/update/{id:int}"
+@inject NavigationManager NavigationManager
+@inject IBookService BookService
+@inject IAuthorService AuthorService
+@attribute [Authorize(Roles = Roles.Administrator)]
+
+<h3>Update Book</h3>
+
+@if (isLoading)
+{
+    <p><em>Caricamento in corso…</em></p>
+}
+else if (!loadSuccess)
+{
+    <div class="alert alert-danger">Errore nel recupero dei dati.</div>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    <EditForm Model="Book" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Book Title</label>
+            <InputText id="title" class="form-control" @bind-Value="Book.Title" />
+            <ValidationMessage For="@(() => Book.Title)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="year" class="form-label">Year</label>
+            <InputNumber id="year" class="form-control" @bind-Value="Book.Year" />
+        </div>
+
+        <div class="mb-3">
+            <label for="isbn" class="form-label">ISBN</label>
+            <InputText id="isbn" class="form-control" @bind-Value="Book.Isbn" />
+            <ValidationMessage For="@(() => Book.Isbn)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="summary" class="form-label">Summary</label>
+            <InputTextArea id="summary" class="form-control" @bind-Value="Book.Summary" rows="4" />
+            <ValidationMessage For="@(() => Book.Summary)" />
+        </div>
+        <div class="mb-3">
+            <label for="author">Author</label>
+            <InputSelect @bind-Value="Book.AuthorId" class="form-select" id="author">
+                <option value="">-- Select Author --</option>
+                @foreach (var author in Authors)
+                {
+                    <option value="@author.Id">@author.FirstName @author.LastName</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => Book.AuthorId)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <InputNumber id="price" class="form-control" @bind-Value="Book.Price" />
+            <ValidationMessage For="@(() => Book.Price)" />
+        </div>
+        <br />
+        <div class="mb-3">
+            <label for="image" class="form-label">Book Cover Image</label>
+            <div>
+                <InputFile OnChange="HandleFileSelection" />
+                <img src="@img" width="100" height="100" class="img-thumbnail" />
+                <p class="text-danger">@UploadFileWarning</p>
+            </div>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary">
+            <span class="oi oi-pencil"></span>
+            Update Book
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick='@(() => NavigationManager.NavigateTo("/books"))'>
+            <span class="oi oi-media-skip-backward"></span>
+            Back To List
+        </button>
+    </EditForm>
+}
+
+@code {
+
+
+
+    [Parameter] public int Id { get; set; }
+
+    private BookUpdateDto Book = new();
+    private List<AuthorReadOnlyDto> Authors = new();
+    private bool isLoading = true;
+    private bool loadSuccess = true;
+    private string? errorMessage;
+    private string img = string.Empty;
+    private List<string>? validationErrors;
+    private long maxFileSize = 1024 * 1024 * 5;
+    private string UploadFileWarning = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            var resp = await BookService.BookUpdateAsync(Id);
+            if (resp.Success)
+            {
+                Book = resp.Data;
+                img = Book.Image;
+            }
+            var authorsResponse = await AuthorService.GetAllAuthors();
+            if (authorsResponse.Success)
+            {
+                Authors = authorsResponse.Data;
+            }
+            else
+            {
+                loadSuccess = false;
+                errorMessage = "Errore nel caricamento degli autori.";
+            }
+        }
+        catch
+        {
+            loadSuccess = false;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var resp = await BookService.GetBookEdit(Id, Book);
+        if (resp.Success)
+        {
+            NavigationManager.NavigateTo("/books");
+        }
+        else
+        {
+            errorMessage = resp.Message;
+            validationErrors = string.IsNullOrEmpty(resp.ValidationErrors)
+                ? new List<string>()
+                : new List<string> { resp.ValidationErrors };
+        }
+    }
+
+    private async Task HandleFileSelection(InputFileChangeEventArgs arg)
+    {
+       var file= arg.File;
+        if (file != null && file.Size > 0)
+        {
+            if (file.Size > maxFileSize) // 5 MB
+            {
+                UploadFileWarning = "File size exceeds 1 MB.";
+                return;
+            }
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream(maxAllowedSize: 1048576).ReadAsync(buffer);
+            img = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+            Book.Image = img;
+            UploadFileWarning = string.Empty;
+        }
+        else
+        {
+            UploadFileWarning = "Please select a valid image file.";
+        }
+    }
+
+}
