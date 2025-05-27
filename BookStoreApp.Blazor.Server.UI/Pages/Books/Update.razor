@@ -46,15 +46,42 @@ else
             <InputTextArea id="summary" class="form-control" @bind-Value="Book.Summary" rows="4" />
             <ValidationMessage For="@(() => Book.Summary)" />
         </div>
+        <div class="mb-3">
+            <label for="author">Author</label>
+            <InputSelect @bind-Value="Book.AuthorId" class="form-select" id="author">
+                <option value="">-- Select Author --</option>
+                @foreach (var author in Authors)
+                {
+                    <option value="@author.Id">@author.FirstName @author.LastName</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => Book.AuthorId)" />
+        </div>
 
         <div class="mb-3">
             <label for="price" class="form-label">Price</label>
             <InputNumber id="price" class="form-control" @bind-Value="Book.Price" />
             <ValidationMessage For="@(() => Book.Price)" />
         </div>
+        <br />
+        <div class="mb-3">
+            <label for="image" class="form-label">Book Cover Image</label>
+            <div>
+                <InputFile OnChange="HandleFileSelection" />
+                <img src="@img" width="100" height="100" class="img-thumbnail" />
+                <p class="text-danger">@UploadFileWarning</p>
+            </div>
+        </div>
 
-        <button type="submit" class="btn btn-primary">Salva</button>
-        <button type="button" class="btn btn-secondary ms-2" @onclick='@(() => NavigationManager.NavigateTo("/books"))'>Annulla</button>
+
+        <button type="submit" class="btn btn-primary">
+            <span class="oi oi-pencil"></span>
+            Update Book
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick='@(() => NavigationManager.NavigateTo("/books"))'>
+            <span class="oi oi-media-skip-backward"></span>
+            Back To List
+        </button>
     </EditForm>
 }
 
@@ -71,6 +98,8 @@ else
     private string? errorMessage;
     private string img = string.Empty;
     private List<string>? validationErrors;
+    private long maxFileSize = 1024 * 1024 * 5;
+    private string UploadFileWarning = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,6 +146,28 @@ else
             validationErrors = string.IsNullOrEmpty(resp.ValidationErrors)
                 ? new List<string>()
                 : new List<string> { resp.ValidationErrors };
+        }
+    }
+
+    private async Task HandleFileSelection(InputFileChangeEventArgs arg)
+    {
+       var file= arg.File;
+        if (file != null && file.Size > 0)
+        {
+            if (file.Size > maxFileSize) // 5 MB
+            {
+                UploadFileWarning = "File size exceeds 1 MB.";
+                return;
+            }
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream(maxAllowedSize: 1048576).ReadAsync(buffer);
+            img = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+            Book.Image = img;
+            UploadFileWarning = string.Empty;
+        }
+        else
+        {
+            UploadFileWarning = "Please select a valid image file.";
         }
     }
 

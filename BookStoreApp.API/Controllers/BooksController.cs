@@ -81,6 +81,18 @@ namespace BookStoreApp.API.Controllers
                 {
                     return NotFound();
                 }
+
+                if (string.IsNullOrEmpty(bookDto.ImageData)==false)
+                {
+                    bookDto.Image = CreateFile(bookDto.ImageData, bookDto.OriginalImageName);
+                    var picName = Path.GetFileName(book.Image);
+                    var path = $"{_webHostEnvironment.WebRootPath}\\bookcoverimages\\{picName}";
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                }
+
                 _mapper.Map(bookDto, book);
                 await _context.SaveChangesAsync();
                 return NoContent();
