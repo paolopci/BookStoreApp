@@ -1,4 +1,5 @@
 ﻿@page "/books/"
+@using System.Globalization
 @inject IBookService bookService
 @inject IJSRuntime js
 
@@ -39,7 +40,7 @@ else
                     <tr>
                         <td><img src="@item.Image" alt="@item.Title" style="width: 50px; height: 50px;" /></td>
                         <td>@item.Title</td>
-                        <td>@item.Price.ToString("C")</td>
+                        <td>@item.Price.ToString("C",CultureInfo.CurrentCulture)</td>
                         <td><a class="btn btn-link" href="/authors/details/@item.AuthorId">@item.AuthorName</a></td>
                         <td>
                             <a class="btn btn-primary" href="@($"/books/details/{item.Id}")"> <span class="oi oi-book" aria-hidden="true"></span> Details</a>

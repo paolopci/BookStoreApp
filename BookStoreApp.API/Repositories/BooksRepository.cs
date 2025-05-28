@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.Book;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -13,7 +14,7 @@ public class BooksRepository : GenericRepository<Book>, IBooksRepository
     private readonly IMapper _mapper;
 
 
-    public BooksRepository(BookStoreDbContext context, IMapper mapper) : base(context)
+    public BooksRepository(BookStoreDbContext context, IMapper mapper) : base(context, mapper)
     {
         _context = context;
         _mapper = mapper;
@@ -22,9 +23,10 @@ public class BooksRepository : GenericRepository<Book>, IBooksRepository
     public async Task<List<BookReadOnlyDto>> GetAllBooksAsync()
     {
         var books = _mapper.Map<List<BookReadOnlyDto>>(
-                             await _context.Books.Include(auth => auth.Author)
-                             .ToListAsync()
-                             );
+            await _context.Books.Include(auth => auth.Author)
+                .ProjectTo<BookReadOnlyDto>(_mapper.ConfigurationProvider)
+                .ToListAsync()
+        );
         return books;
     }
 

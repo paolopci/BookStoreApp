@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.16" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.16" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.11.0" />
   </ItemGroup>
