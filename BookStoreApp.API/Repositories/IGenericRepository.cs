@@ -1,7 +1,4 @@
-﻿using BookStoreApp.API.Models;
-
-
-namespace BookStoreApp.API.Repositories
+﻿namespace BookStoreApp.API.Repositories
 {
     public interface IGenericRepository<T> where T : class
     {
@@ -11,6 +8,5 @@ namespace BookStoreApp.API.Repositories
         Task UpdateAsync(T entity);
         Task DeleteAsync(int? id);
         Task<bool> Exists(int id);
-        Task<VirtualizeResponse<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters) where TResult : class;
     }
 }

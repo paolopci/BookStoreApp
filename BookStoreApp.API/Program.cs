@@ -1,33 +1,15 @@
-using System.Globalization;
 using BookStoreApp.API.Configurations;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Repositories;
 using BookStoreApp.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-// 1) Definisco la cultura italiana
-var itCulture = new CultureInfo("it-IT");
-
-// 2) Imposto la cultura a livello di thread
-CultureInfo.DefaultThreadCurrentCulture = itCulture;
-CultureInfo.DefaultThreadCurrentUICulture = itCulture;
-
-// 3) (Opzionale ma consigliato) Configuro il localization middleware
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    options.DefaultRequestCulture = new RequestCulture(itCulture);
-    options.SupportedCultures = new[] { itCulture };
-    options.SupportedUICultures = new[] { itCulture };
-});
-
 
 // Add services to the container.
 var connString = builder.Configuration.GetConnectionString("BookStoreAppDbConnection");
@@ -96,7 +78,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseRequestLocalization();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowAll");

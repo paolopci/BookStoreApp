@@ -1,4 +1,3 @@
-using System.Globalization;
 using Blazored.LocalStorage;
 using BookStoreApp.Blazor.WebAssembly.UI;
 using BookStoreApp.Blazor.WebAssembly.UI.Configuration;
@@ -16,10 +15,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-
-
-
-
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
@@ -32,15 +27,6 @@ builder.Services.AddScoped<AuthenticationStateProvider>(p =>
 
 builder.Services.AddScoped(sp => new HttpClient() {BaseAddress = new Uri("https://localhost:7073/")});
 builder.Services.AddAutoMapper(typeof(MapperConfig));
-
-
-// 1) Aggiungo i servizi di localizzazione
-builder.Services.AddLocalization();
-
-// 2) Imposto la cultura italiana
-var itCulture = new CultureInfo("it-IT");
-CultureInfo.DefaultThreadCurrentCulture = itCulture;
-CultureInfo.DefaultThreadCurrentUICulture = itCulture;
 
 
 

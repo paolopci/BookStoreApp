@@ -12,7 +12,7 @@ public class AuthorsRepository : GenericRepository<Author>, IAuthorsRepository
     private readonly BookStoreDbContext _context;
     private readonly IMapper _mapper;
 
-    public AuthorsRepository(BookStoreDbContext context, IMapper mapper) : base(context, mapper)
+    public AuthorsRepository(BookStoreDbContext context, IMapper mapper) : base(context)
     {
         _context = context;
         _mapper = mapper;

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BookStoreApp.API.Data;
-using BookStoreApp.API.Models;
 using BookStoreApp.API.Models.Author;
 using BookStoreApp.API.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -28,15 +27,15 @@ namespace BookStoreApp.API.Controllers
             _logger = logger;
         }
 
-        // GET: api/Authors/?StartIndex=0&PageSize=15
+        // GET: api/Authors
         [HttpGet]
-        public async Task<ActionResult<VirtualizeResponse<AuthorReadOnlyDto>>> GetAuthors([FromQuery]QueryParameters queryParameters)
+        public async Task<ActionResult<IEnumerable<AuthorReadOnlyDto>>> GetAuthors()
         {
             _logger.LogInformation("[GetAuthors] Starting retrieval of all authors.");
             try
             {
-                var authors =await _authorsRepository.GetAllAsync<AuthorReadOnlyDto>(queryParameters);
-                _logger.LogInformation("[GetAuthors] Retrieved {Count} authors.", authors.TotalSize);
+                var authors = _mapper.Map<List<AuthorReadOnlyDto>>(await _authorsRepository.GetAllAsync());
+                _logger.LogInformation("[GetAuthors] Retrieved {Count} authors.", authors.Count);
                 return Ok(authors);
             }
             catch (Exception ex)

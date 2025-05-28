@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using BookStoreApp.API.Data;
-using BookStoreApp.API.Models;
+﻿using BookStoreApp.API.Data;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -10,12 +7,10 @@ namespace BookStoreApp.API.Repositories;
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
     private readonly BookStoreDbContext _context;
-    private readonly IMapper _mapper;
 
-    public GenericRepository(BookStoreDbContext context,IMapper mapper)
+    public GenericRepository(BookStoreDbContext context)
     {
         _context = context;
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<T?> GetAsync(int? id)
@@ -48,32 +43,19 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public async Task DeleteAsync(int? id)
     {
-
+        
         var entity = await GetAsync(id);
         if (entity == null)
         {
-            return;
+            return ;
         }
         _context.Set<T>().Remove(entity);
 
     }
 
-    public async Task<bool> Exists(int id)
+    public async  Task<bool> Exists(int id)
     {
         var entity = await GetAsync(id);
         return entity != null;
-    }
-
-    public async Task<VirtualizeResponse<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters) where TResult : class
-    {
-        var totalSize = await _context.Set<T>().CountAsync();
-        var items = await _context.Set<T>()
-            .Skip(queryParameters.StartIndex)
-            .Take(queryParameters.PageSize)
-            .ProjectTo<TResult>(_mapper.ConfigurationProvider)
-            //.Select(e => (TResult)Convert.ChangeType(e, typeof(TResult)))
-            .ToListAsync();
-
-        return new VirtualizeResponse<TResult> { Items = items, TotalSize = totalSize };
     }
 }
