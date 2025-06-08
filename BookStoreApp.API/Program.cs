@@ -1,4 +1,5 @@
 using Serilog;
+using BookStoreApp.API.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,8 @@ Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configurat
 builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IWeatherService, WeatherService>();
 
 
 builder.Services.AddEndpointsApiExplorer();
