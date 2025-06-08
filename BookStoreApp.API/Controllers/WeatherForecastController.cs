@@ -19,27 +19,26 @@ namespace BookStoreApp.API.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
-        { 
+        public ActionResult<IEnumerable<WeatherForecast>> Get()
+        {
             _logger.LogInformation("Getting weather forecast");
             try
             {
-                throw new Exception("This is our logging test exception");
-                return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+                var forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
                     {
                         Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                         TemperatureC = Random.Shared.Next(-20, 55),
                         Summary = Summaries[Random.Shared.Next(Summaries.Length)]
                     })
                     .ToArray();
+
+                return Ok(forecasts);
             }
             catch (Exception ex)
             {
-               _logger.LogError(ex,"Fatal Error Occurred.");
-                throw;
+                _logger.LogError(ex, "Error generating weather forecast");
+                return StatusCode(500);
             }
-           
-            
         }
     }
 }
