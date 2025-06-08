@@ -22,8 +22,6 @@ namespace BookStoreApp.API.Controllers
         public IEnumerable<WeatherForecast> Get()
         { 
             _logger.LogInformation("Getting weather forecast");
-            try
-            {
                 throw new Exception("This is our logging test exception");
                 return Enumerable.Range(1, 5).Select(index => new WeatherForecast
                     {
@@ -32,12 +30,6 @@ namespace BookStoreApp.API.Controllers
                         Summary = Summaries[Random.Shared.Next(Summaries.Length)]
                     })
                     .ToArray();
-            }
-            catch (Exception ex)
-            {
-               _logger.LogError(ex,"Fatal Error Occurred.");
-                throw;
-            }
            
             
         }
